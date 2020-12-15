@@ -3,17 +3,49 @@ import {View, Text, Image, TouchableOpacity} from 'react-native';
 import {Input, Button} from 'react-native-elements';
 import {CometChat} from '@cometchat-pro/react-native-chat';
 import messaging from '@react-native-firebase/messaging';
+import notifee from '@notifee/react-native';
+
 let appID = '24958738083736c';
 let apiKey = '8a5eb7dfb907f21dd697cf3e4cce4263f487d65d';
 let appRegion = 'us';
 export default function Login({navigation}) {
   useEffect(() => {
-    messaging().onMessage((messaging) => {
-      alert('msg');
+    messaging().onMessage(async (remoteMessage) => {
+      console.log('message received', remoteMessage);
+      console.log({title: remoteMessage.data.title, body: remoteMessage.data.alert})
+      let isIOS = Platform.OS === 'ios';
+      if(isIOS){
+        await notifee.displayNotification({
+          title: remoteMessage.data.title,
+          body: remoteMessage.data.alert,
+          ios: {
+            foregroundPresentationOptions: {
+              critical: true,
+              alert: true,
+              badge: true,
+              sound: true,
+            },
+          },
+        });
+      }else{
+        console.log('android');
+        const channelId = await notifee.createChannel({
+          id: 'default',
+          name: 'Default Channel',
+        });
+        let result = await notifee.displayNotification({
+          title: remoteMessage.data.title,
+          body: remoteMessage.data.alert,
+          android: {
+            channelId
+          },
+        });
+        console.log(result);
+      }
     });
     let cometChatSettings = new CometChat.AppSettingsBuilder()
       .subscribePresenceForAllUsers()
-      .setRegion('us')
+      .setRegion(appRegion)
       .build();
     CometChat.init(appID, cometChatSettings).then(
       () => {
@@ -28,10 +60,14 @@ export default function Login({navigation}) {
   }, []);
 
   const registerForFCM = async (id) => {
-    let FCMToken = await messaging().getToken();
-    console.log('token:', FCMToken);
-    let response = await CometChat.registerTokenForPushNotification(FCMToken);
-    console.log('register fro fcm :', response);
+    const authStatus = await messaging().requestPermission();
+    const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    if (enabled) {
+      let FCMToken = await messaging().getToken();
+      console.log('token:', FCMToken);
+      let response = await CometChat.registerTokenForPushNotification(FCMToken);
+      console.log('register fro fcm :', response);
+    }
   };
 
   const login = (uid) => {
