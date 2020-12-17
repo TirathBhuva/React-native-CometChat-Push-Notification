@@ -3,8 +3,9 @@ import {View, Text, Platform, TouchableOpacity} from 'react-native';
 import {Input, Button} from 'react-native-elements';
 import {CometChat} from '@cometchat-pro/react-native-chat';
 import * as ImagePicker from 'react-native-image-picker';
+import {CommonActions} from '@react-navigation/native';
 
-export default function Home() {
+export default function Home({navigation}) {
   const [uid, setUid] = useState('');
   const [message, setMessage] = useState('');
   const [type, setType] = useState('user');
@@ -121,124 +122,187 @@ export default function Home() {
     );
   };
 
+  const sendCustomMessage = () => {
+    if (!uid) {
+      alert('Enter UID');
+      return false;
+    }
+    if (!message) {
+      alert('Enter message');
+      return false;
+    }
+    var receiverType =
+      type == 'user'
+        ? CometChat.RECEIVER_TYPE.USER
+        : CometChat.RECEIVER_TYPE.GROUP;
+    var customMessage = new CometChat.CustomMessage(
+      uid,
+      receiverType,
+      'custom',
+      {message},
+    );
+
+    CometChat.sendCustomMessage(customMessage).then(
+      (message) => {
+        console.log('message', message);
+        alert('sent Successfully');
+      },
+      (error) => {
+        console.log('Message sending failed with error:', error);
+      },
+    );
+    setMessage('');
+  };
+
+  const logout = () => {
+    CometChat.logout().then(
+      () => {
+        console.log('Logout completed successfully');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{name: 'Login'}],
+          }),
+        );
+      },
+      //Logout completed successfully
+      (error) => {
+        //Logout failed with exception
+        console.log('Logout failed with exception:', {error});
+      },
+    );
+  };
+
   return (
     <View style={{flex: 1}}>
-      <Text
-        style={{
-          marginTop: '10%',
-          color: '#FFF',
-          fontSize: 26,
-          marginLeft: '5%',
-        }}>
-        Push Notification
-      </Text>
-
-      <Input
-        containerStyle={{marginTop: '10%'}}
-        inputContainerStyle={{borderWidth: 0.5, vorderColor: '#000'}}
-        placeholder={type == 'user' ? 'Enter UID here' : 'Enter Guid'}
-        value={uid}
-        onChangeText={(id) => setUid(id)}
-      />
-
-      <View
-        style={{
-          marginTop: '5%',
-          paddingVertical: 20,
-          paddingHorizontal: 10,
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          backgroundColor: '#707070',
-          marginHorizontal: '5%',
-          borderRadius: 15,
-        }}>
-        <TouchableOpacity
-          onPress={() => {
-            setType('user');
-          }}
+      <View style={{flex: 1}}>
+        <Text
           style={{
-            width: '40%',
-            backgroundColor: type == 'user' ? '#fff' : '#00000000',
-            padding: 10,
-            alignItems: 'center',
+            marginTop: '10%',
+            color: '#0099FF',
+            fontSize: 26,
+            marginLeft: '5%',
           }}>
-          <Text>To User</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setType('group');
-          }}
-          style={{
-            width: '40%',
-            backgroundColor: type != 'user' ? '#fff' : '#00000000',
-            padding: 10,
-            alignItems: 'center',
-          }}>
-          <Text>To Group</Text>
-        </TouchableOpacity>
-      </View>
-      <Text
-        style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          marginTop: 10,
-          marginLeft: '5%',
-        }}>
-        Enter Text Message
-      </Text>
+          Push Notification
+        </Text>
 
-      <Input
-        containerStyle={{marginTop: 10}}
-        inputContainerStyle={{borderWidth: 0.5, vorderColor: '#000'}}
-        placeholder="message"
-        value={message}
-        onChangeText={(msg) => setMessage(msg)}
-      />
-      <View
-        style={{
-          flexDirection: 'row',
-          marginHorizontal: '5%',
-          justifyContent: 'space-around',
-        }}>
-        <Button
-          onPress={() => sendMessage()}
-          containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-          titleStyle={{fontSize: 18}}
-          title={'Text Message'}></Button>
-        <Button
-          onPress={() => imagePicker()}
-          containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-          titleStyle={{fontSize: 18}}
-          title={'Media Message'}></Button>
+        <Input
+          containerStyle={{marginTop: '10%'}}
+          inputContainerStyle={{borderWidth: 0.5, vorderColor: '#000'}}
+          placeholder={type == 'user' ? 'Enter UID here' : 'Enter Guid'}
+          value={uid}
+          onChangeText={(id) => setUid(id)}
+        />
+
+        <View
+          style={{
+            marginTop: '5%',
+            paddingVertical: 20,
+            paddingHorizontal: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            backgroundColor: '#707070',
+            marginHorizontal: '5%',
+            borderRadius: 15,
+          }}>
+          <TouchableOpacity
+            onPress={() => {
+              setType('user');
+            }}
+            style={{
+              width: '40%',
+              backgroundColor: type == 'user' ? '#fff' : '#00000000',
+              padding: 10,
+              alignItems: 'center',
+            }}>
+            <Text>To User</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setType('group');
+            }}
+            style={{
+              width: '40%',
+              backgroundColor: type != 'user' ? '#fff' : '#00000000',
+              padding: 10,
+              alignItems: 'center',
+            }}>
+            <Text>To Group</Text>
+          </TouchableOpacity>
+        </View>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            marginTop: 10,
+            marginLeft: '5%',
+          }}>
+          Enter Text Message
+        </Text>
+
+        <Input
+          containerStyle={{marginTop: 10}}
+          inputContainerStyle={{borderWidth: 0.5, vorderColor: '#000'}}
+          placeholder="message"
+          value={message}
+          onChangeText={(msg) => setMessage(msg)}
+        />
+        <View
+          style={{
+            flexDirection: 'row',
+            marginHorizontal: '5%',
+            justifyContent: 'space-around',
+          }}>
+          <Button
+            onPress={() => sendMessage()}
+            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
+            titleStyle={{fontSize: 18}}
+            title={'Text Message'}></Button>
+          <Button
+            onPress={() => imagePicker()}
+            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
+            titleStyle={{fontSize: 18}}
+            title={'Media Message'}></Button>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginHorizontal: '5%',
+            justifyContent: 'space-around',
+          }}>
+          <Button
+            onPress={() => initiateCall('audio')}
+            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
+            titleStyle={{fontSize: 18}}
+            title={'Audio Call'}></Button>
+          <Button
+            onPress={() => initiateCall('video')}
+            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
+            titleStyle={{fontSize: 18}}
+            title={'Video Call'}></Button>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginHorizontal: '5%',
+            justifyContent: 'space-around',
+          }}>
+          <Button
+            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
+            titleStyle={{fontSize: 18}}
+            onPress={() => sendCustomMessage()}
+            title={'Custom Message'}></Button>
+        </View>
       </View>
-      <View
+
+      <Button
         style={{
-          flexDirection: 'row',
-          marginHorizontal: '5%',
-          justifyContent: 'space-around',
-        }}>
-        <Button
-          onPress={() => initiateCall('audio')}
-          containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-          titleStyle={{fontSize: 18}}
-          title={'Audio Call'}></Button>
-        <Button
-          onPress={() => initiateCall('video')}
-          containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-          titleStyle={{fontSize: 18}}
-          title={'Video Call'}></Button>
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          marginHorizontal: '5%',
-          justifyContent: 'space-around',
-        }}>
-        <Button
-          containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-          titleStyle={{fontSize: 18}}
-          title={'Custom Message'}></Button>
-      </View>
+          height: 50,
+          width: '100%',
+        }}
+        titleStyle={{fontSize: 18}}
+        onPress={() => logout()}
+        title={'Logout'}></Button>
     </View>
   );
 }

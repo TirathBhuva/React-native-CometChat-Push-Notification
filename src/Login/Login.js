@@ -4,7 +4,7 @@ import {Input, Button} from 'react-native-elements';
 import {CometChat} from '@cometchat-pro/react-native-chat';
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
-
+import {CommonActions} from '@react-navigation/native';
 let appID = '24958738083736c';
 let apiKey = '8a5eb7dfb907f21dd697cf3e4cce4263f487d65d';
 let appRegion = 'us';
@@ -12,9 +12,12 @@ export default function Login({navigation}) {
   useEffect(() => {
     messaging().onMessage(async (remoteMessage) => {
       console.log('message received', remoteMessage);
-      console.log({title: remoteMessage.data.title, body: remoteMessage.data.alert})
+      console.log({
+        title: remoteMessage.data.title,
+        body: remoteMessage.data.alert,
+      });
       let isIOS = Platform.OS === 'ios';
-      if(isIOS){
+      if (isIOS) {
         await notifee.displayNotification({
           title: remoteMessage.data.title,
           body: remoteMessage.data.alert,
@@ -27,7 +30,7 @@ export default function Login({navigation}) {
             },
           },
         });
-      }else{
+      } else {
         console.log('android');
         const channelId = await notifee.createChannel({
           id: 'default',
@@ -37,7 +40,7 @@ export default function Login({navigation}) {
           title: remoteMessage.data.title,
           body: remoteMessage.data.alert,
           android: {
-            channelId
+            channelId,
           },
         });
         console.log(result);
@@ -50,6 +53,16 @@ export default function Login({navigation}) {
     CometChat.init(appID, cometChatSettings).then(
       () => {
         console.log('Initialization completed successfully');
+        CometChat.getLoggedinUser().then((user) => {
+          if (user) {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [{name: 'Home'}],
+              }),
+            );
+          }
+        });
         //You can now call login function.
       },
       (error) => {
@@ -61,7 +74,9 @@ export default function Login({navigation}) {
 
   const registerForFCM = async (id) => {
     const authStatus = await messaging().requestPermission();
-    const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
     if (enabled) {
       let FCMToken = await messaging().getToken();
       console.log('token:', FCMToken);
@@ -77,7 +92,12 @@ export default function Login({navigation}) {
         registerForFCM(User.uid);
 
         // User loged in successfully.
-        navigation.navigate('Home');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{name: 'Home'}],
+          }),
+        );
       },
       (error) => {
         console.log('Login failed with exception:', {error});
@@ -132,11 +152,16 @@ export default function Login({navigation}) {
               width: '40%',
               margin: '5%',
               paddingVertical: 10,
-              justifyContent: 'center',
+
               alignItems: 'center',
               borderRadius: 5,
+              flexDirection: 'row',
             }}>
-            <Text style={{color: '#fff', fontSize: 18}}>SUPERHERO1</Text>
+            <Image
+              style={{height: 30, width: 30, marginHorizontal: 5}}
+              source={require('@icons/ironman.png')}
+            />
+            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO1</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -146,11 +171,16 @@ export default function Login({navigation}) {
               width: '40%',
               margin: '5%',
               paddingVertical: 10,
-              justifyContent: 'center',
+
               alignItems: 'center',
               borderRadius: 5,
+              flexDirection: 'row',
             }}>
-            <Text style={{color: '#fff', fontSize: 18}}>SUPERHERO2</Text>
+            <Image
+              style={{height: 30, width: 30, marginHorizontal: 5}}
+              source={require('@icons/captainamerica.png')}
+            />
+            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO2</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -160,11 +190,16 @@ export default function Login({navigation}) {
               width: '40%',
               margin: '5%',
               paddingVertical: 10,
-              justifyContent: 'center',
+
               alignItems: 'center',
               borderRadius: 5,
+              flexDirection: 'row',
             }}>
-            <Text style={{color: '#fff', fontSize: 18}}>SUPERHERO3</Text>
+            <Image
+              style={{height: 30, width: 30, marginHorizontal: 5}}
+              source={require('@icons/spiderman.png')}
+            />
+            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO3</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -174,11 +209,16 @@ export default function Login({navigation}) {
               width: '40%',
               margin: '5%',
               paddingVertical: 10,
-              justifyContent: 'center',
+
               alignItems: 'center',
               borderRadius: 5,
+              flexDirection: 'row',
             }}>
-            <Text style={{color: '#fff', fontSize: 18}}>SUPERHERO4</Text>
+            <Image
+              style={{height: 30, width: 30, marginHorizontal: 5}}
+              source={require('@icons/wolverine.png')}
+            />
+            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO4</Text>
           </TouchableOpacity>
         </View>
 
