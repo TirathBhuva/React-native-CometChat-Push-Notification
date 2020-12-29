@@ -1,14 +1,13 @@
 import React, {useEffect} from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Platform} from 'react-native';
 import {Input, Button} from 'react-native-elements';
 import {CometChat} from '@cometchat-pro/react-native-chat';
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import {CommonActions} from '@react-navigation/native';
-let appID = '24958738083736c';
-let apiKey = '8a5eb7dfb907f21dd697cf3e4cce4263f487d65d';
-let appRegion = 'us';
-export default function Login({navigation}) {
+import localStyles from '@login/LoginStyles';
+import {appID, apiKey, appRegion} from '@resources/Constants';
+export default function Login({navigation, routes}) {
   useEffect(() => {
     messaging().onMessage(async (remoteMessage) => {
       console.log('message received', remoteMessage);
@@ -58,7 +57,7 @@ export default function Login({navigation}) {
             navigation.dispatch(
               CommonActions.reset({
                 index: 1,
-                routes: [{name: 'Home'}],
+                routes: [{name: 'Home', params: {name: user.name}}],
               }),
             );
           }
@@ -71,7 +70,6 @@ export default function Login({navigation}) {
       },
     );
   }, []);
-
   const registerForFCM = async (id) => {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -95,7 +93,7 @@ export default function Login({navigation}) {
         navigation.dispatch(
           CommonActions.reset({
             index: 1,
-            routes: [{name: 'Home'}],
+            routes: [{name: 'Home', params: {name: User.name}}],
           }),
         );
       },
@@ -106,130 +104,70 @@ export default function Login({navigation}) {
     );
   };
   return (
-    <View style={{flex: 1}}>
-      <View style={{marginLeft: '5%', marginTop: '10%'}}>
+    <View style={localStyles.flex1}>
+      <View style={localStyles.headerContainer}>
         <Image
-          style={{
-            height: 100,
-            aspectRatio: 1,
-          }}
+          style={localStyles.cometChatLogo}
           source={require('@icons/cometchat_white.png')}
         />
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 26,
-            color: '#707070',
-            marginTop: 10,
-          }}>
-          CometChat
-        </Text>
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 26,
-            color: '#0099FF',
-            marginTop: 10,
-          }}>
-          Push Notification Sample App
-        </Text>
+        <Text style={localStyles.cometChatLabel}>CometChat</Text>
+        <Text style={localStyles.headerText}>Push Notification Sample App</Text>
       </View>
-      <View style={{flex: 1, marginTop: 10, padding: '5%'}}>
-        <Text
-          style={{
-            fontWeight: 'bold',
-            fontSize: 18,
-            color: '#707070',
-            marginTop: 10,
-          }}>
+      <View style={localStyles.loginContainer}>
+        <Text style={localStyles.loginHeader}>
           Login with one of our sample users
         </Text>
-        <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
+        <View style={localStyles.userListContainer}>
           <TouchableOpacity
             onPress={() => login('SUPERHERO1')}
-            style={{
-              backgroundColor: '#000',
-              width: '40%',
-              margin: '5%',
-              paddingVertical: 10,
-
-              alignItems: 'center',
-              borderRadius: 5,
-              flexDirection: 'row',
-            }}>
+            style={localStyles.userContainer}>
             <Image
-              style={{height: 30, width: 30, marginHorizontal: 5}}
+              style={localStyles.userIcon}
               source={require('@icons/ironman.png')}
             />
-            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO1</Text>
+            <Text style={localStyles.userNameText}>SUPERHERO1</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => login('SUPERHERO2')}
-            style={{
-              backgroundColor: '#000',
-              width: '40%',
-              margin: '5%',
-              paddingVertical: 10,
-
-              alignItems: 'center',
-              borderRadius: 5,
-              flexDirection: 'row',
-            }}>
+            style={localStyles.userContainer}>
             <Image
-              style={{height: 30, width: 30, marginHorizontal: 5}}
+              style={localStyles.userIcon}
               source={require('@icons/captainamerica.png')}
             />
-            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO2</Text>
+            <Text style={localStyles.userNameText}>SUPERHERO2</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => login('SUPERHERO3')}
-            style={{
-              backgroundColor: '#000',
-              width: '40%',
-              margin: '5%',
-              paddingVertical: 10,
-
-              alignItems: 'center',
-              borderRadius: 5,
-              flexDirection: 'row',
-            }}>
+            style={localStyles.userContainer}>
             <Image
-              style={{height: 30, width: 30, marginHorizontal: 5}}
+              style={localStyles.userIcon}
               source={require('@icons/spiderman.png')}
             />
-            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO3</Text>
+            <Text style={localStyles.userNameText}>SUPERHERO3</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => login('SUPERHERO4')}
-            style={{
-              backgroundColor: '#000',
-              width: '40%',
-              margin: '5%',
-              paddingVertical: 10,
-
-              alignItems: 'center',
-              borderRadius: 5,
-              flexDirection: 'row',
-            }}>
+            style={localStyles.userContainer}>
             <Image
-              style={{height: 30, width: 30, marginHorizontal: 5}}
+              style={localStyles.userIcon}
               source={require('@icons/wolverine.png')}
             />
-            <Text style={{color: '#fff', fontSize: 16}}>SUPERHERO4</Text>
+            <Text style={localStyles.userNameText}>SUPERHERO4</Text>
           </TouchableOpacity>
         </View>
 
         <Input
-          style={{marginTop: 5}}
+          style={localStyles.inputStyles}
           placeholder={'or else continue login with uid'}
         />
         <Button
-          buttonStyle={{marginTop: 5, backgroundColor: '#000'}}
-          titleStyle={{fontSize: 18}}
-          title={'LOGIN USING UID'}></Button>
+          buttonStyle={localStyles.buttonStyle}
+          titleStyle={localStyles.buttonTextStyle}
+          title={'LOGIN USING UID'}
+        />
       </View>
     </View>
   );

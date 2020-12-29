@@ -4,11 +4,13 @@ import {Input, Button} from 'react-native-elements';
 import {CometChat} from '@cometchat-pro/react-native-chat';
 import * as ImagePicker from 'react-native-image-picker';
 import {CommonActions} from '@react-navigation/native';
-
-export default function Home({navigation}) {
+import localStyles from '@home/HomeStyles';
+export default function Home({navigation, route}) {
   const [uid, setUid] = useState('');
   const [message, setMessage] = useState('');
   const [type, setType] = useState('user');
+  const userName = route?.params?.name;
+
   useEffect(() => {
     checkExtension();
   });
@@ -16,7 +18,7 @@ export default function Home({navigation}) {
   const checkExtension = async () => {
     const setting = await CometChat.getAppSettings();
     const extension = setting.extensions.filter(
-      (ext) => ext.id == 'push-notification',
+      (ext) => ext.id === 'push-notification',
     );
 
     console.log('extension:', extension);
@@ -174,59 +176,39 @@ export default function Home({navigation}) {
   };
 
   return (
-    <View style={{flex: 1}}>
-      <View style={{flex: 1}}>
-        <Text
-          style={{
-            marginTop: '10%',
-            color: '#0099FF',
-            fontSize: 26,
-            marginLeft: '5%',
-          }}>
-          Push Notification
-        </Text>
+    <View style={localStyles.flex1}>
+      <View style={localStyles.flex1}>
+        <Text style={localStyles.headerText}>Logged in as {userName}</Text>
 
         <Input
-          containerStyle={{marginTop: '10%'}}
-          inputContainerStyle={{borderWidth: 0.5, vorderColor: '#000'}}
+          containerStyle={localStyles.userNameInputContainerStyle}
+          inputContainerStyle={localStyles.userNameInputStyles}
           placeholder={type == 'user' ? 'Enter UID here' : 'Enter Guid'}
           value={uid}
           onChangeText={(id) => setUid(id)}
         />
 
-        <View
-          style={{
-            marginTop: '5%',
-            paddingVertical: 20,
-            paddingHorizontal: 10,
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            backgroundColor: '#707070',
-            marginHorizontal: '5%',
-            borderRadius: 15,
-          }}>
+        <View style={localStyles.userTypeContainer}>
           <TouchableOpacity
             onPress={() => {
               setType('user');
             }}
-            style={{
-              width: '40%',
-              backgroundColor: type == 'user' ? '#fff' : '#00000000',
-              padding: 10,
-              alignItems: 'center',
-            }}>
+            style={
+              type === 'user'
+                ? localStyles.selectedType
+                : localStyles.unselectedType
+            }>
             <Text>To User</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               setType('group');
             }}
-            style={{
-              width: '40%',
-              backgroundColor: type != 'user' ? '#fff' : '#00000000',
-              padding: 10,
-              alignItems: 'center',
-            }}>
+            style={
+              type !== 'user'
+                ? localStyles.selectedType
+                : localStyles.unselectedType
+            }>
             <Text>To Group</Text>
           </TouchableOpacity>
         </View>
@@ -241,68 +223,56 @@ export default function Home({navigation}) {
         </Text>
 
         <Input
-          containerStyle={{marginTop: 10}}
-          inputContainerStyle={{borderWidth: 0.5, vorderColor: '#000'}}
+          containerStyle={localStyles.msgInputContainerStyle}
+          inputContainerStyle={localStyles.userNameInputStyles}
           placeholder="message"
           value={message}
           onChangeText={(msg) => setMessage(msg)}
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            marginHorizontal: '5%',
-            justifyContent: 'space-around',
-          }}>
+        <View style={localStyles.buttonContainer}>
           <Button
             onPress={() => sendMessage()}
-            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-            titleStyle={{fontSize: 18}}
-            title={'Text Message'}></Button>
+            containerStyle={localStyles.buttonStyle}
+            titleStyle={localStyles.buttonTitleStyle}
+            title={'Text Message'}
+          />
           <Button
             onPress={() => imagePicker()}
-            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-            titleStyle={{fontSize: 18}}
-            title={'Media Message'}></Button>
+            containerStyle={localStyles.buttonStyle}
+            titleStyle={localStyles.buttonTitleStyle}
+            title={'Media Message'}
+          />
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            marginHorizontal: '5%',
-            justifyContent: 'space-around',
-          }}>
+        <View style={localStyles.buttonContainer}>
           <Button
             onPress={() => initiateCall('audio')}
-            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-            titleStyle={{fontSize: 18}}
-            title={'Audio Call'}></Button>
+            containerStyle={localStyles.buttonStyle}
+            titleStyle={localStyles.buttonTitleStyle}
+            title={'Audio Call'}
+          />
           <Button
             onPress={() => initiateCall('video')}
-            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-            titleStyle={{fontSize: 18}}
-            title={'Video Call'}></Button>
+            containerStyle={localStyles.buttonStyle}
+            titleStyle={localStyles.buttonTitleStyle}
+            title={'Video Call'}
+          />
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            marginHorizontal: '5%',
-            justifyContent: 'space-around',
-          }}>
+        <View style={localStyles.buttonContainer}>
           <Button
-            containerStyle={{marginTop: 5, borderRadius: 8, width: '40%'}}
-            titleStyle={{fontSize: 18}}
+            containerStyle={localStyles.buttonStyle}
+            titleStyle={localStyles.buttonTitleStyle}
             onPress={() => sendCustomMessage()}
-            title={'Custom Message'}></Button>
+            title={'Custom Message'}
+          />
         </View>
       </View>
 
       <Button
-        style={{
-          height: 50,
-          width: '100%',
-        }}
-        titleStyle={{fontSize: 18}}
+        style={localStyles.logoutBtnStyles}
+        titleStyle={localStyles.buttonTitleStyle}
         onPress={() => logout()}
-        title={'Logout'}></Button>
+        title={'Logout'}
+      />
     </View>
   );
 }
